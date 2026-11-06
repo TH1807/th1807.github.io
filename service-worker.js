@@ -3,11 +3,12 @@
 // y muestre "Sin conexión" cuando no hay internet. Nunca guarda datos del sistema:
 // todo lo del personal sigue viniendo en vivo de Google (Apps Script y la hoja de cálculo).
 // Al cambiar cualquier archivo de la portada, suba el número de VERSION.
-var VERSION = 'th-v4';
+var VERSION = 'th-v5';
 var PORTADA = [
   './',
   './index.html',
   './manifest.webmanifest',
+  './camara.js',
   './iconos/logo.jpg',
   './iconos/icono-192.png',
   './iconos/icono-512.png',
@@ -41,6 +42,12 @@ self.addEventListener('fetch', function (e) {
         return r;
       }).catch(function () { return caches.match('./index.html'); })
     );
+    return;
+  }
+  // Programas de la portada (cámara, lector QR): primero de internet para tener siempre el más nuevo.
+  if (/\.js$/.test(new URL(req.url).pathname)) {
+    e.respondWith(fetch(req).then(function (r) { var copia = r.clone(); caches.open(VERSION).then(function (c) { c.put(req, copia); }); return r; })
+      .catch(function () { return caches.match(req); }));
     return;
   }
   // Logo e íconos: de la memoria y, si falta, de internet.
