@@ -130,7 +130,8 @@
                 mostrarMensaje('Sin conexión a internet', 'Conéctese a una red Wi-Fi o a los datos móviles. El sistema se abre solo al volver la conexión.');
                 return;
             }
-            marco.src = URL_SISTEMA;
+            // Un número distinto en cada apertura: el teléfono nunca reutiliza una versión vieja del sistema.
+            marco.src = URL_SISTEMA + '?t=' + Date.now();
             temporizador = setTimeout(function () {
                 if (listo) return;
                 if (bienvenida.classList.contains('oculta')) aviso.classList.add('visible');
