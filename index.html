@@ -209,7 +209,7 @@
         window.addEventListener('message', function (e) {
             var host = '';
             try { host = new URL(e.origin).hostname; } catch (err) {}
-            var desdeGoogle = /(^|\.)googleusercontent\.com$|^script\.google\.com$/.test(host);
+            var desdeGoogle = /(^|\.)googleusercontent\.com$|^script\.google\.com$/.test(host) || e.origin === 'null';
             if (!desdeGoogle || !e.data || e.data.tipo !== 'rrhh-listo') return;
             listo = true;
             clearTimeout(temporizador); clearTimeout(respaldo);

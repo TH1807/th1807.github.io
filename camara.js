@@ -106,6 +106,14 @@
         }
 
     function enviar(datos) { if (cliente) { datos.tipo = 'rrhh-camara'; try { cliente.postMessage(datos, origenCliente); } catch (e) {} } }
+    // ¿El mensaje viene de adentro de NUESTRO marco del sistema? (Google lo muestra en varios marcos
+    // anidados, a veces sin origen visible; por eso se revisa de qué marco viene y no solo el origen).
+    function desdeElSistema(e) {
+        var marco = document.getElementById('sistema'), w = e.source, pasos = 0;
+        if (!marco || !w) return false;
+        try { while (w && pasos++ < 8) { if (w === marco.contentWindow) return true; if (w === w.parent) break; w = w.parent; } } catch (err) {}
+        return false;
+    }
     function estado(texto, tipo) { var e = $('camEstado'); e.textContent = texto; e.className = 'cam-estado ' + (tipo || ''); }
 
     function abrir(d) {
@@ -220,13 +228,15 @@
     // ---- Mensajes del sistema ----
     window.addEventListener('message', function (e) {
         var host = ''; try { host = new URL(e.origin).hostname; } catch (err) {}
-        if (!GOOGLE.test(host) || !e.data || typeof e.data !== 'object' || !e.source) return;
-        if (e.data.tipo === 'rrhh-listo') {
-            cliente = e.source; origenCliente = e.origin;
-            enviar({ evento: 'disponible', version: 1 });
+        if (!e.data || typeof e.data !== 'object' || !e.source) return;
+        if (!(GOOGLE.test(host) || (e.origin === 'null' && desdeElSistema(e))) || !desdeElSistema(e)) return;
+        if (e.data.tipo === 'rrhh-listo' || (e.data.tipo === 'rrhh-camara' && e.data.accion === 'hola')) {
+            cliente = e.source; origenCliente = (e.origin && e.origin !== 'null') ? e.origin : '*';
+            enviar({ evento: 'disponible', version: 2 });
             return;
         }
-        if (e.data.tipo !== 'rrhh-camara' || e.source !== cliente) return;
+        if (e.data.tipo !== 'rrhh-camara') return;
+        if (e.source !== cliente) { cliente = e.source; origenCliente = (e.origin && e.origin !== 'null') ? e.origin : '*'; }
         if (e.data.accion === 'abrir') abrir(e.data);
         else if (e.data.accion === 'cerrar') cerrar(false, false);
     });

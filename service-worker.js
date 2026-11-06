@@ -3,7 +3,7 @@
 // y muestre "Sin conexión" cuando no hay internet. Nunca guarda datos del sistema:
 // todo lo del personal sigue viniendo en vivo de Google (Apps Script y la hoja de cálculo).
 // Al cambiar cualquier archivo de la portada, suba el número de VERSION.
-var VERSION = 'th-v5';
+var VERSION = 'th-v6';
 var PORTADA = [
   './',
   './index.html',
